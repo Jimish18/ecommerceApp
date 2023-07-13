@@ -31,10 +31,10 @@ app.use((req,res,next) =>
 app.use('/api/v1/auth' , AuthRoutes);
 
 // rest API
-app.use('/', (req , res) =>
-{
-    res.json({messege : "Welcome to ecommerce App"});
-})
+// app.use('/', (req , res) =>
+// {
+//     res.json({messege : "Welcome to ecommerce App"});
+// })
 
 // PORT
 const PORT = process.env.PORT || 8000;

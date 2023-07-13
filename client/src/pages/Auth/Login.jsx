@@ -5,13 +5,10 @@ import toast from 'react-hot-toast';
 import '../../styles/AuthStyles.css'
 
 
-const Register = () => {
+const Login = () => {
 
     const navigate = useNavigate();
-
-    const [name ,setName] = useState("");
-    const [address ,setAddress] = useState("");
-    const [phone ,setPhone] = useState("");
+    
     const [email ,setEmail] = useState("");
     const [password ,setPassword] = useState("");
 
@@ -21,26 +18,26 @@ const Register = () => {
         
         try 
         {
-            let response = await fetch('/api/v1/auth/register' ,
+            let response = await fetch('/api/v1/auth/login' ,
             {
                 method : 'POST',
                 headers :
                 {
                     'Content-Type' : 'application/json'
                 },
-                body : JSON.stringify({name,address,phone,email,password})
+                body : JSON.stringify({email,password})
             })
 
             const json = await response.json();
             
             if(json.success)
             {
-                toast.success('Register Successfully');
-                navigate('/login');
+                toast.success('Login Successfully');
+                navigate('/');
             }
             else
             {
-                toast.error("Registration Faild");
+                toast.error("Login Faild");
             }
         } 
         catch (error) 
@@ -49,21 +46,13 @@ const Register = () => {
         }
         
     }
+
   return (
     <Layout>
         <div className='form-container' style={{height : '80vh'}}>
             <form onSubmit={handleSubmit}>
-                <h4 className="title">REGISTER FORM</h4>
+                <h4 className="title">LOGIN FORM</h4>               
                 
-                <div className="form-group my-2">
-                    <input type="text" className="form-control" id="exampleInputName" value={name} placeholder="Enter Name..." onChange={(e) => {setName(e.target.value)}}/>
-                </div>
-                <div className="form-group my-2">
-                    <input type="text" className="form-control" id="exampleInputAddress" value={address} placeholder="Enter Address..." onChange={(e) => {setAddress(e.target.value)}}/>
-                </div>
-                <div className="form-group my-2">
-                    <input type='text' className="form-control" id="exampleInputPhone" value={phone} placeholder="Enter Phone..." onChange={(e) => {setPhone(e.target.value)}}/>
-                </div>
                 <div className="form-group my-2">
                     <input type="email" className="form-control" id="exampleInputEmail1"  value={email} placeholder="Enter email..." onChange={(e) => {setEmail(e.target.value)}}/>
                 </div>
@@ -78,4 +67,4 @@ const Register = () => {
   )
 }
 
-export default Register
+export default Login
