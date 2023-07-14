@@ -3,6 +3,7 @@ import Layout from '../../components/Layout/Layout'
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import '../../styles/AuthStyles.css'
+import { useAuth } from '../../context/Auth';
 
 
 const Login = () => {
@@ -11,6 +12,7 @@ const Login = () => {
     
     const [email ,setEmail] = useState("");
     const [password ,setPassword] = useState("");
+    const [auth ,setAuth] = useAuth();
 
     const handleSubmit = async (e) =>
     {
@@ -33,11 +35,18 @@ const Login = () => {
             if(json.success)
             {
                 toast.success('Login Successfully');
+                setAuth({
+                    ...auth,
+                    user : json.User,
+                    token : json.token
+                })
+                localStorage.setItem('auth',JSON.stringify(json))
                 navigate('/');
             }
             else
             {
                 toast.error("Login Faild");
+                
             }
         } 
         catch (error) 

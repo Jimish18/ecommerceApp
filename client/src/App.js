@@ -6,6 +6,8 @@ import PolicyPage from "./pages/PolicyPage";
 import PageNotFount from "./pages/PageNotFount";
 import Register from "./pages/Auth/Register";
 import Login from "./pages/Auth/Login";
+import Dashboard from "./pages/User/Dashboard";
+import PrivateRoute from "./components/Routes/Private";
 
 function App() {
   return (
@@ -13,6 +15,12 @@ function App() {
       <Router>
         <Routes>
           <Route exact path="/" element = {<HomePage/>}></Route>
+          
+          <Route path="/dashboard" element = {<PrivateRoute/>}>
+
+            <Route exact path="" element = {<Dashboard/>}></Route>
+          </Route>
+          
           <Route exact path="/about" element = {<AboutPage/>}></Route>
           <Route exact path="/register" element = {<Register/>}></Route>
           <Route exact path="/login" element = {<Login/>}></Route>

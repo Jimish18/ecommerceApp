@@ -19,7 +19,14 @@ body('email','Invalid Email').isEmail(),
 body('password','Password is too weak').isLength({min:8})
 , loginController)
 
+// test routes with middleware Protextion
 router.get('/test' ,requireSignIn, isAdmin ,testController)
 
+
+// Protected route auth
+router.get('/user-auth',requireSignIn , (req,res) =>
+{
+    res.status(200).json({ok : true});
+})
 
 module.exports = router;
