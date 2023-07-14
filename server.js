@@ -16,6 +16,8 @@ app.use(morgan('dev'));
 
 // requiring routes file
 const AuthRoutes = require('./routes/AuthRoute');
+const CategoryRoutes = require('./routes/CategoryRoute');
+const ProductRoutes = require('./routes/ProductRoute');
 
 //to get rid of cors errors 
 app.use((req,res,next) =>
@@ -29,6 +31,8 @@ app.use((req,res,next) =>
 })
 
 app.use('/api/v1/auth' , AuthRoutes);
+app.use('/api/v1/category' , CategoryRoutes);
+app.use('/api/v1/product' , ProductRoutes);
 
 // rest API
 // app.use('/', (req , res) =>
