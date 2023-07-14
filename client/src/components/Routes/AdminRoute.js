@@ -3,7 +3,7 @@ import { useAuth } from "../../context/Auth";
 import { Outlet } from "react-router-dom";
 import Spinner from "../Spinner";
 
-export default function PrivateRoute()
+export default function AdminRoute()
 {
     const [ok,setOk] = useState(false);
     const [auth] = useAuth();
@@ -15,7 +15,7 @@ export default function PrivateRoute()
         {
             authCheck = async () =>
             {
-                const res = await fetch('/api/v1/auth/user-auth' , 
+                const res = await fetch('/api/v1/auth/admin-auth' , 
                 {
                     method : 'GET',
                     headers :
@@ -46,6 +46,6 @@ export default function PrivateRoute()
 
     } , [auth?.token]);
 
-    return ok ? <Outlet/> : <Spinner/>;
+    return ok ? <Outlet/> : <Spinner path=""/>;
 }
 

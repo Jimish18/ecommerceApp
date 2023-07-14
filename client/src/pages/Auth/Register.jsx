@@ -14,6 +14,7 @@ const Register = () => {
     const [phone ,setPhone] = useState("");
     const [email ,setEmail] = useState("");
     const [password ,setPassword] = useState("");
+    const [answer , setAnswer] = useState("");
 
     const handleSubmit = async (e) =>
     {
@@ -28,7 +29,7 @@ const Register = () => {
                 {
                     'Content-Type' : 'application/json'
                 },
-                body : JSON.stringify({name,address,phone,email,password})
+                body : JSON.stringify({name,address,phone,email,password,answer})
             })
 
             const json = await response.json();
@@ -63,6 +64,9 @@ const Register = () => {
                 </div>
                 <div className="form-group my-2">
                     <input type='text' className="form-control" id="exampleInputPhone" value={phone} placeholder="Enter Phone..." onChange={(e) => {setPhone(e.target.value)}}/>
+                </div>
+                <div className="form-group my-2">
+                    <input type='text' className="form-control" id="exampleInputAnswer" value={answer} placeholder="Enter favourite sport for security..." onChange={(e) => {setAnswer(e.target.value)}}/>
                 </div>
                 <div className="form-group my-2">
                     <input type="email" className="form-control" id="exampleInputEmail1"  value={email} placeholder="Enter email..." onChange={(e) => {setEmail(e.target.value)}}/>

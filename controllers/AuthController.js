@@ -13,7 +13,7 @@ const registerController = async (req , res) =>
 
     try 
     {
-        const {name , email , password , phone , address} = req.body;    
+        const {name , email , password , phone , address , answer} = req.body;    
 
         // existing User Check
         const existingUser = await User.findOne({email});
@@ -32,7 +32,7 @@ const registerController = async (req , res) =>
         const hashedPassword = await hashPassword(password);
 
         // save()
-        const user = new User({name , email , phone , address , password : hashedPassword}).save();
+        const user = new User({name , email , phone , address , answer ,password : hashedPassword}).save();
 
         res.status(201).json(
             {
@@ -95,6 +95,7 @@ const loginController = async (req , res) =>
                             email : user.email,
                             phone : user.phone,
                             address : user.address,
+                            answer : user.answer,
                             role : user.role
                         },
                         token
@@ -134,5 +135,54 @@ const testController = (req,res) =>
     )
 }
 
-module.exports = {registerController , loginController , testController};
+const forgotPasswordController = async (req,res) =>
+{
+    const errors = validationResult(req);
+    if(!errors.isEmpty())
+    {
+        return res.status(400).json({errors : errors.array()});     
+    }
+
+    try 
+    {
+        const {email , answer , newPassword} = req.body;
+        
+        const user = await User.findOne({email,answer});
+
+        if(!user)
+        {
+            return res.status(404).json(
+                {
+                    success : false,
+                    message : "Wrong email or answer Entered"
+                }
+            )
+        }
+
+        const hashedPassword = await hashPassword(newPassword);
+
+        await User.findByIdAndUpdate(user._id , {password : hashedPassword});
+
+        res.status(200).json(
+            {
+                success : true,
+                message : "Password Reset Successfully"
+            }
+        )
+    } 
+    catch (error) 
+    {
+       console.error(error);
+       
+       res.status(500).json(
+        {
+            success : false,
+            message : "Something went wrong",
+            error
+        }
+       )
+    }
+}
+
+module.exports = {registerController , loginController , forgotPasswordController ,testController};
 

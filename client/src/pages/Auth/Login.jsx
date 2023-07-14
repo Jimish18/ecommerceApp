@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import Layout from '../../components/Layout/Layout'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , useLocation } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import '../../styles/AuthStyles.css'
 import { useAuth } from '../../context/Auth';
@@ -9,6 +9,7 @@ import { useAuth } from '../../context/Auth';
 const Login = () => {
 
     const navigate = useNavigate();
+    const location = useLocation();
     
     const [email ,setEmail] = useState("");
     const [password ,setPassword] = useState("");
@@ -41,7 +42,10 @@ const Login = () => {
                     token : json.token
                 })
                 localStorage.setItem('auth',JSON.stringify(json))
-                navigate('/');
+
+                // here we're directing user to he's opened page as he login
+                // and if he's not at any page before he'll directed to homepage
+                navigate(location.state || '/');
             }
             else
             {
@@ -68,6 +72,7 @@ const Login = () => {
                 <div className="form-group my-2">
                     <input type="password" className="form-control" id="exampleInputPassword1" value={password} placeholder="Password" onChange={(e) => {setPassword(e.target.value)}}/>
                 </div>
+                <button type='button' onClick={() => {navigate('/forgot-password')}} className="btn btn-primary w-100 my-2">Forgot Password</button>
                 <button type="submit" className="btn btn-primary w-100 ">Submit</button>
             </form>
 
