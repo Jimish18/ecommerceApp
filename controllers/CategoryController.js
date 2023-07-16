@@ -143,11 +143,10 @@ const deleteSingleCategoryController = async (req,res) =>
 {
     try 
     {
-        const {id} = req.params.id;
+        const {id} = req.params;
 
-        const categoryFind = await CategoryModel.findOne(id);
-        
-        const category = await CategoryModel.findByIdAndDelete(categoryFind._id);
+               
+        const category = await CategoryModel.findByIdAndDelete(id);
         res.status(200).json(
             {
                 success : true,
