@@ -5,7 +5,9 @@ const createCategoryController = async (req,res) =>
 {
     try 
     {
-        const {name} = req.body;
+        const name = req.body.name;
+
+        console.log(name);
         
         if(!name)
         {
