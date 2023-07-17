@@ -2,8 +2,8 @@ import React, { useEffect, useState } from 'react'
 import Layout from '../../components/Layout/Layout'
 import AdminMenu from '../../components/Layout/AdminMenu'
 import  toast  from 'react-hot-toast';
-import CategoryFrom from '../../components/Form/CategoryFrom';
 import { useAuth } from '../../context/Auth';
+import CategoryFrom from '../../components/Form/CategoryFrom';
 
 const CreateCategory = () => {
     
