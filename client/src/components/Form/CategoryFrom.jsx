@@ -1,6 +1,6 @@
-import React , {useState} from 'react'
+import React from 'react'
 
-const CategoryFrom = ({handleOnSubmit , value , setValue}) => {
+const CategoryFrom = ({handleOnSubmit , value , setValue , actionName}) => {
 
     
   return (
@@ -8,7 +8,7 @@ const CategoryFrom = ({handleOnSubmit , value , setValue}) => {
         <div className="mb-3">
             <input type="text" className="form-control" placeholder='Enter Category Name...' value = {value} onChange={(e) => setValue(e.target.value) }/>            
         </div>
-        <button type="submit" className="btn btn-primary" onClick={handleOnSubmit}>Create</button>
+        <button type="submit" className="btn btn-primary" onClick={handleOnSubmit}>{actionName}</button>
     </form>
   )
 }

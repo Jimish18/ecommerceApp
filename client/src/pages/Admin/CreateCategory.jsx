@@ -11,6 +11,8 @@ const CreateCategory = () => {
 
     const [auth] = useAuth();
     const [name , setName] = useState("");
+    const [selected , setSelected] = useState(null);
+    const [updatedName , setUpdatedName] = useState('');
 
     // Function to create New Category and Send API Request For IT
     const handleOnSubmit = async (e) =>
@@ -36,6 +38,11 @@ const CreateCategory = () => {
             {
                 toast.success(`Category "${jsonData.category.name}" created Successfully`);
                 getAllCategories();
+                setName('');
+            }
+            else
+            {
+                toast.error(jsonData.message);
                 setName('');
             }
             console.log(jsonData);           
@@ -79,6 +86,82 @@ const CreateCategory = () => {
         }
     }
 
+    // Edit Functionality Using category update API
+    const handleOnUpdate = async (e) =>
+    {
+        e.preventDefault();
+
+        try 
+        {
+            const response = await fetch(`/api/v1/category/update-category/${selected}` , 
+            {
+                method : 'PUT',
+                headers :
+                {
+                    Authorization : auth?.token,
+                    'Content-Type' : 'application/json' 
+                },
+                body : JSON.stringify({name : updatedName})
+            })  
+
+            const jsonData = await response.json();
+
+            // console.log(jsonData);
+
+            if(jsonData?.success)
+            {
+                toast.success(`Category Updated to ${updatedName} Successfully`);
+                setUpdatedName("");
+                setSelected(null);
+                getAllCategories();
+            }
+            else
+            {
+                toast.error("Error while updating category");
+            }
+
+            
+            
+        } 
+        catch (error) 
+        {
+            console.error(error);
+            toast.error("Error While Editing Category")    
+        }
+    }
+
+    // Deleting Category using delete category API
+    const handleOnDelete  = async (id) =>
+    {
+        try 
+        {
+            const response = await fetch(`/api/v1/category/delete-category/${id}` , 
+            {
+                method : 'DELETE',
+                headers :
+                {
+                    Authorization : auth?.token,
+                    'Content-Type' : 'application/json' 
+                }
+            })    
+
+            const jsonData = await response.json();
+
+            // console.log(jsonData);
+
+            if(jsonData?.success)
+            {
+                toast.success("Successfully Deleted Category");
+                getAllCategories();
+            }
+        } 
+        catch (error) 
+        {
+            console.error(error);
+            toast.error("Error While Deleting Category");    
+        }
+    }
+
     useEffect(() =>
     {
         getAllCategories();
@@ -97,7 +180,7 @@ const CreateCategory = () => {
                     <h1>Manage Category</h1>
 
                     <div className="my-2">
-                        <CategoryFrom handleOnSubmit={handleOnSubmit} value = {name} setValue = {setName}/>
+                        <CategoryFrom handleOnSubmit={handleOnSubmit} value = {name} setValue = {setName} actionName={'create'}/>
                     </div>
 
                     <div>
@@ -118,8 +201,9 @@ const CreateCategory = () => {
                                     <tr className=''>
                                         <td key={c._id} className='align-middle'>{c.name}</td>
                                         <td>
-                                            <button className="btn btn-primary mx-1">Edit</button>
-                                            <button className="btn btn-danger mx-1">Delete</button>
+                                        {/* Modal Launch Button For Edit Functionality */}
+                                            <button type="button" className="btn btn-primary mx-1" data-bs-toggle="modal" data-bs-target="#staticBackdrop" onClick={() => {setUpdatedName(c.name) ; setSelected(c._id)}}>Edit</button>
+                                            <button className="btn btn-danger mx-1" onClick={() => { handleOnDelete(c._id)}}>Delete</button>
                                         </td>
                                     </tr> 
                                 )  
@@ -129,6 +213,26 @@ const CreateCategory = () => {
                         </tbody>
                         </table>
                     </div>
+                    
+                    {/* <!-- Modal --> */}
+                    <div className="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabIndex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+                    <div className="modal-dialog">
+                        <div className="modal-content">
+                        <div className="modal-header">
+                            <h1 className="modal-title fs-5" id="staticBackdropLabel">Edit Category</h1>
+                            <button type="button" className="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div className="modal-body">
+                            <CategoryFrom actionName={'Edit'} value={updatedName} setValue={setUpdatedName} handleOnSubmit={handleOnUpdate}/>
+                        </div>
+                        {/* <div className="modal-footer">
+                            <button type="button" className="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="button" className="btn btn-primary">Edit</button>
+                        </div> */}
+                        </div>
+                    </div>
+                    </div>
+
                 </div>
             </div>
         </div>
