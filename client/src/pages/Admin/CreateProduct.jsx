@@ -3,7 +3,8 @@ import Layout from '../../components/Layout/Layout'
 import AdminMenu from '../../components/Layout/AdminMenu'
 import  toast  from 'react-hot-toast';
 import { useAuth } from '../../context/Auth';
-import slugify from 'slugify';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const CreateProduct = () => {
     
@@ -13,10 +14,11 @@ const CreateProduct = () => {
     const [description , setDescription] = useState('');
     const [price , setPrice] = useState('');
     const [quantity , setQuantity] = useState('');
-    const [category , setCategory] = useState('');
+    const [category , setCategory] = useState(null);
     const [shipping , setShipping] = useState('');
     
-    const [auth] = useAuth()
+    const [auth] = useAuth();
+    const navigate = useNavigate();
 
     // Function to Fetch All the Categories By Sending API request
     const getAllCategories = async () =>
@@ -52,35 +54,73 @@ const CreateProduct = () => {
     }, [])
 
     // API handle on Create Product
-    const handleOnCreate = async (e) =>
+    const handleOnCreate = async () =>
     {
-        e.preventDefault();
+        const productData = new FormData();
 
+        productData.append('name' , name);
+        productData.append('description' , description);
+        productData.append('price' , price);
+        productData.append('category' , category);
+        productData.append('photo' , photo);
+        productData.append('quantity' , quantity);
+        productData.append('shipping' , shipping);
+
+        // const data = new URLSearchParams(productData);
+
+        // We're Not Sending JSON format in this API 
+        // We're sending a formData
+        // Console ProductData (FormData)
+        // for(var pair of productData.entries())
+        // {
+        //     console.log(pair[0] + " " + pair[1]);
+        // }
         try 
         {
-            const response = await fetch('/api/v1/product/create-product',
-            {
-                method : 'POST',
+            // Lots of data handling error in fetch api
+            // const response = await fetch('/api/v1/product/create-product',
+            // {
+            //     method : 'POST',
+            //     headers :
+            //     {
+            //         Authorization : auth?.token,
+            //         // 'Content-Type' : 'application/x-www-form-urlencoded'
+            //         // 'Content-Type' : 'multipart/form-data; boundary=------some-random-characters' 
+            //     },
+            //     body : data
+            // })
+
+            // console.log(response);
+
+            // const jsonData = await response.json();
+
+            // console.log(jsonData);    
+
+            // solved using axios
+            const {data} = await axios.post('/api/v1/product/create-product', productData ,{
                 headers :
                 {
-                    Authorization : auth?.token,
-                    'Content-Type' : 'application/json' 
-                },
-                body : JSON.stringify({name ,description ,price , quantity, photo,category , slug : slugify(name),shipping})
+                    Authorization : auth?.token
+                }
             })
 
-            console.log(response);
+            if(data?.success)
+            {
+                toast.success("Product Created Successfully");
+                // navigate('/dashboard/admin/products');
+            }
+            else
+            {
+                toast.error(data?.message);
+            }
 
-            const jsonData = await response.json();
-
-            console.log(jsonData);    
+            
         } 
         catch (error) 
         {
             console.error(error);
             toast.error("Something Went Wrong While Creating Product");    
         }
-        // console.log(name ,description ,price , quantity, photo,category);
     }
 
 
@@ -108,7 +148,7 @@ const CreateProduct = () => {
                                 categoriesData?.map((c) =>
                                 {
                                     return(
-                                        <option value={c.name} key={c._id}>{c.name}</option>
+                                        <option value={c._id} key={c._id}>{c.name}</option>
                                     )
                                 })
                             }
@@ -134,7 +174,7 @@ const CreateProduct = () => {
                             photo && (
                                 <div className="text-center">
                                     <img 
-                                        src={URL.createObjectURL(photo)} /*Dynamically Previewing Image using browser Property*/
+                                        src={URL.createObjectURL(photo)} 
                                         alt="Product Photo" 
                                         className="img img-responsive" 
                                         height={'200px'}
@@ -200,7 +240,7 @@ const CreateProduct = () => {
                     </div>
 
                     <div className="my-3">
-                        <button className="btn btn-primary" onClick={handleOnCreate}>Create Product</button>
+                        <button type = 'submit' className="btn btn-primary" onClick={() => {handleOnCreate()}}>Create Product</button>
                     </div>
 
                 </div>

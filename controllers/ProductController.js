@@ -8,6 +8,9 @@ const createProductController = async (req,res) =>
     {
         const {name ,  description , price , category , quantity , shipping} = req.fields ; 
         const {photo} = req.files;
+        // const {photo} = req.fields;
+
+        
 
         switch (true) {
             case !name:
@@ -20,9 +23,10 @@ const createProductController = async (req,res) =>
                 return res.status(500).json({error : 'category is Required'});
             case !quantity:
                 return res.status(500).json({error : 'quantity is Required'});
-            case !photo || photo.size > 1000000:
+            case !photo || photo.size > 100000000:
                 return res.status(500).json({error : 'photo is Required and size should be less than 1mb'});       
-            
+            default :
+                break;
         }
 
         const product = new ProductModel({...req.fields , slug : slugify(name)});
