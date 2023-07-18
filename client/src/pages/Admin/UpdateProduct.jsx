@@ -4,10 +4,10 @@ import AdminMenu from '../../components/Layout/AdminMenu'
 import  toast  from 'react-hot-toast';
 import { useAuth } from '../../context/Auth';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate , useParams } from 'react-router-dom';
 
-const CreateProduct = () => {
-    
+const UpdateProduct = () => {
+
     const [categoriesData , setCategoriesData] = useState([]);
     const [photo , setPhoto] = useState('');
     const [name , setName] = useState('');
@@ -16,9 +16,43 @@ const CreateProduct = () => {
     const [quantity , setQuantity] = useState('');
     const [category , setCategory] = useState(null);
     const [shipping , setShipping] = useState('');
+    const [id,setId] = useState('');
     
     const [auth] = useAuth();
     const navigate = useNavigate();
+    const params = useParams();
+
+    // get Single Product
+    const getSingleProduct = async() =>
+    {
+        try 
+        {
+            const response = await fetch(`/api/v1/product/get-product/${params.slug}` , 
+            {
+                method : 'GET'
+            })    
+
+            const jsonData = await response.json();
+
+            setName(jsonData.product.name);
+            setDescription(jsonData.product.description);
+            setPrice(jsonData.product.price);
+            setQuantity(jsonData.product.quantity);
+            setShipping(jsonData.product.shipping);
+            setCategory(jsonData.product.category._id);
+            setPhoto(jsonData.product.photo);
+            setId(jsonData.product._id);
+        } 
+        catch (error) 
+        {
+            console.error(error);    
+        }
+    }
+
+    useEffect(()=>
+    {
+        getSingleProduct();
+    },[])
 
     // Function to Fetch All the Categories By Sending API request
     const getAllCategories = async () =>
@@ -53,8 +87,40 @@ const CreateProduct = () => {
         getAllCategories();
     }, [])
 
+    // API call to delete Product
+    const handleOnDelete = async () =>
+    {
+        try 
+        {
+            const answer = window.confirm("Are your sure want to delete this product ?");
+            if( !answer) return;
+
+            const response = await fetch(`/api/v1/product/delete-product/${id}` , 
+            {
+                method : 'DELETE',
+                headers :
+                {
+                    Authorization : auth?.token
+                }
+            })    
+
+            const jsonData = await response.json();
+
+            if(jsonData?.success)
+            {
+                toast.success(`${jsonData.message}`);
+                navigate('/dashboard/admin/products');
+            }
+        } 
+        catch (error) 
+        {
+            console.error(error);
+            toast.error('Error While Deleting Product');    
+        }
+    }
+
     // API handle on Create Product
-    const handleOnCreate = async () =>
+    const handleOnUpdate = async () =>
     {
         const productData = new FormData();
 
@@ -62,42 +128,17 @@ const CreateProduct = () => {
         productData.append('description' , description);
         productData.append('price' , price);
         productData.append('category' , category);
-        productData.append('photo' , photo);
+        photo && productData.append('photo' , photo);
         productData.append('quantity' , quantity);
         productData.append('shipping' , shipping);
 
-        // const data = new URLSearchParams(productData);
-
-        // We're Not Sending JSON format in this API 
-        // We're sending a formData
-        // Console ProductData (FormData)
-        // for(var pair of productData.entries())
-        // {
-        //     console.log(pair[0] + " " + pair[1]);
-        // }
+        
         try 
         {
-            // Lots of data handling error in fetch api
-            // const response = await fetch('/api/v1/product/create-product',
-            // {
-            //     method : 'POST',
-            //     headers :
-            //     {
-            //         Authorization : auth?.token,
-            //         // 'Content-Type' : 'application/x-www-form-urlencoded'
-            //         // 'Content-Type' : 'multipart/form-data; boundary=------some-random-characters' 
-            //     },
-            //     body : data
-            // })
-
-            // console.log(response);
-
-            // const jsonData = await response.json();
-
-            // console.log(jsonData);    
+            
 
             // solved using axios
-            const {data} = await axios.post('/api/v1/product/create-product', productData ,{
+            const {data} = await axios.put(`/api/v1/product/update-product/${id}`, productData ,{
                 headers :
                 {
                     Authorization : auth?.token
@@ -123,8 +164,6 @@ const CreateProduct = () => {
         }
     }
 
-
-
   return (
     <Layout>
         <div className="container">
@@ -133,7 +172,7 @@ const CreateProduct = () => {
                     <AdminMenu/>
                 </div>
                 <div className="col-md-9">
-                    <h1>Create Product</h1>
+                    <h1>Update Product</h1>
 
                     <div className="">
                         <select 
@@ -141,6 +180,8 @@ const CreateProduct = () => {
                             aria-label="Default select example" 
                             placeholder='Select Category...'
                             onChange={(e) => setCategory(e.target.value)}
+                            value={category}
+                            // defaultValue={category}
                         >
                             <option selected disabled>Select Category</option>
                             
@@ -171,10 +212,21 @@ const CreateProduct = () => {
                     {/* Div For Selected Image Preview */}
                     <div className="my-3">
                         {
-                            photo && (
+                            photo ? (
                                 <div className="text-center">
                                     <img 
                                         src={URL.createObjectURL(photo)} 
+                                        alt="Product Photo" 
+                                        className="img img-responsive" 
+                                        height={'200px'}
+                                    />
+                                </div>
+                            )
+                            :
+                            (
+                                <div className="text-center">
+                                    <img 
+                                        src={`/api/v1/product/product-photo/${id}`}
                                         alt="Product Photo" 
                                         className="img img-responsive" 
                                         height={'200px'}
@@ -232,6 +284,7 @@ const CreateProduct = () => {
                             aria-label="Default select example" 
                             placeholder='Select Category...'
                             onChange={(e) => setShipping(e.target.value)}
+                            value={shipping}
                         >
                             <option value="" selected disabled>Select Shipping</option>
                             <option value='0'>No</option>
@@ -240,7 +293,8 @@ const CreateProduct = () => {
                     </div>
 
                     <div className="my-3">
-                        <button type = 'submit' className="btn btn-primary" onClick={() => {handleOnCreate()}}>Create Product</button>
+                        <button type = 'submit' className="btn btn-primary" onClick={() => {handleOnUpdate()}}>Update Product</button>
+                        <button type = 'submit' className="btn btn-danger mx-2" onClick={() => {handleOnDelete()}}>Delete Product</button>
                     </div>
 
                 </div>
@@ -250,4 +304,4 @@ const CreateProduct = () => {
   )
 }
 
-export default CreateProduct
+export default UpdateProduct

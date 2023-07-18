@@ -196,9 +196,10 @@ const updateProductController = async (req,res) =>
                 return res.status(500).json({error : 'category is Required'});
             case !quantity:
                 return res.status(500).json({error : 'quantity is Required'});
-            case !photo || photo.size > 1000000:
-                return res.status(500).json({error : 'photo is Required and size should be less than 1mb'});       
-            
+            // case !photo || photo.size > 100000000:
+            //     return res.status(500).json({error : 'photo is Required and size should be less than 1mb'});       
+            default :
+                break;
         }
         const {id} = req.params;
 
@@ -213,7 +214,7 @@ const updateProductController = async (req,res) =>
             product.photo.contentType = photo.type
         }
 
-        // await product.save();
+        await product.save();
 
         res.status(201).json(
             {
