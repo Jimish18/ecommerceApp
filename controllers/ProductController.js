@@ -69,7 +69,7 @@ const getAllProductsController = async (req,res) =>
         .find({})
         .populate("category")
         .select('-photo')
-        .limit(12)
+        // .limit(12)
         .sort({createdAt : -1});  
 
         
