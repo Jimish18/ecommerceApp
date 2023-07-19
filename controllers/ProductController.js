@@ -237,4 +237,42 @@ const updateProductController = async (req,res) =>
     }
 }
 
-module.exports = {createProductController , getAllProductsController , getSingleProductsController , getProductsPhotoController , deleteProductController , updateProductController};
+// filtered Product Controller
+
+const getFiltersProductController = async (req,res) =>
+{
+    try 
+    {
+        const {checked , radio} = req.body;
+
+        let args = {};
+
+        if(checked.length > 0) args.category = checked;
+        if(radio.length) args.price = {$gte : radio[0] , $lte : radio[1]}
+
+        const products = await ProductModel.find(args);
+
+        if(products)
+        {
+            res.status(200).json(
+                {
+                    success : true,
+                    products
+                }
+            )
+        }
+    } 
+    catch (error)
+    {
+        console.error(error);
+        res.status(400).json(
+            {
+                success : false,
+                message : "Error While filtering Products",
+                error
+            }
+        )
+    }
+}
+
+module.exports = {createProductController , getAllProductsController , getSingleProductsController , getProductsPhotoController , deleteProductController , updateProductController , getFiltersProductController};
