@@ -45,7 +45,7 @@ const CategoryPage = () => {
                 {
                     categories?.map(c =>
                     (                        
-                        <div className="col-md-3 col-sm-12 my-2">
+                        <div className="col-md-3 col-sm-12 my-2" key={c._id}>
                             <Link 
                             to={`/category/${c.slug}`}
                             className='h4 text-decoration-none btn btn-primary w-100'>

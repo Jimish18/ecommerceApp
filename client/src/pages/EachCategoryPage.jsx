@@ -36,7 +36,7 @@ const EachCategoryPage = () => {
 
     useEffect(()=>
     {
-        getCategoryWiseProducts();
+      getCategoryWiseProducts();
     },[]);
 
   return (

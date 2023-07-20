@@ -2,10 +2,12 @@ import React , {useState,useEffect} from 'react'
 import { NavLink , Link , useNavigate} from 'react-router-dom'
 import { useAuth } from '../../context/Auth'
 import { toast } from 'react-hot-toast'
+import { useCart } from '../../context/Cart'
 
 const Header = () => {
 
   const [auth,setAuth] = useAuth();
+  const [cart] = useCart();
   const navigate = useNavigate();
 
   const handleLogout = () =>
@@ -51,8 +53,10 @@ const Header = () => {
 
     useEffect(() =>
     {
-        getAllCategories();
+      getAllCategories();
     }, [])
+
+    
 
   return (
     <div>
@@ -71,28 +75,33 @@ const Header = () => {
                       <Link className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" >
                         categories
                       </Link>
+
+
                       <ul className="dropdown-menu" style={{minWidth : 'fit-content'}}>
                         
-                        <Link                             
-                          className="dropdown-item" 
-                          style={{backgroundColor : 'white' , color : 'black' , border : '0'}}
-                          to={`/category`}
-                        >
-                          All Categories
-                        </Link>
+                        <li>
+                          <Link                             
+                            className="dropdown-item" 
+                            style={{backgroundColor : 'white' , color : 'black' , border : '0'}}
+                            to={`/category`}
+                          >
+                            All Categories
+                          </Link>
+                        </li>
 
                         {
-                          categories?.map(c =>
+                          categories?.map((c )=>
                           (
                             
-                            <Link 
-                              key={c._id}
-                              className="dropdown-item" 
-                              style={{backgroundColor : 'white' , color : 'black' , border : '0'}}
-                              to={`/category/${c.slug}`}
-                            >
-                            {c.name}
-                            </Link>
+                            <li key={c._id}>
+                              <Link                                 
+                                className="dropdown-item" 
+                                style={{backgroundColor : 'white' , color : 'black' , border : '0'}}
+                                to={`/category/${c.slug}`}
+                              >
+                              {c.name}
+                              </Link>
+                            </li>
                             
                           ))
                         }
@@ -113,9 +122,9 @@ const Header = () => {
                       (
                         <>
                           <li className="nav-item dropdown">
-                            <NavLink className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" >
+                            <Link className="nav-link dropdown-toggle" role="button" data-bs-toggle="dropdown" >
                               {auth?.user?.name}
-                            </NavLink>
+                            </Link>
                             <ul className="dropdown-menu" style={{minWidth : 'fit-content'}}>
                               <li>
                                 <NavLink to = {`/dashboard/${auth?.user?.role === 1 ? 'admin' : 'user'}`} className="dropdown-item">Dashboard</NavLink>
@@ -133,7 +142,7 @@ const Header = () => {
                         </>
                       )
                     }
-                    <NavLink to="/cart" className="nav-link">cart(0)</NavLink>
+                    <NavLink to="/cart" className="nav-link">cart({cart.length})</NavLink>
                 </div>
                 </div>
             </div>
