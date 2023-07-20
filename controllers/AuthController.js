@@ -184,5 +184,52 @@ const forgotPasswordController = async (req,res) =>
     }
 }
 
-module.exports = {registerController , loginController , forgotPasswordController ,testController};
+const updateProfileController = async (req,res) =>
+{
+    
+    try 
+    {
+        const {name , address , password , phone } = req.body;          
+
+        const user = await User.findById(req.user._id);
+
+        const hashedPassword = password ? await hashPassword(password) : undefined;
+
+        const updatedUser = await User.findByIdAndUpdate(req.user._id , 
+            {
+                name : name || user.name,
+                password : hashedPassword || user.password,
+                phone : phone || user.phone,
+                address : address || user.address
+            }, {new : true});
+
+        res.status(200).json(
+            {
+                success : true,
+                message : "Profile Updated Successfully",
+                updatedUser
+            }
+        )
+    } 
+    catch (error) 
+    {
+        console.error(error);
+        res.status(400).json(
+            {
+                success : false,
+                message : "Error while updating Profile",
+                error
+            }
+        )    
+    }
+}
+
+module.exports = 
+{
+    registerController , 
+    loginController , 
+    forgotPasswordController ,
+    testController,
+    updateProfileController
+};
 

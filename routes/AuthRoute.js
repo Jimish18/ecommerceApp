@@ -1,6 +1,14 @@
 const express = require('express');
 const router = express.Router();
-const {registerController , loginController , forgotPasswordController , testController} = require('../controllers/AuthController');
+const 
+{
+    registerController , 
+    loginController , 
+    forgotPasswordController , 
+    testController,
+    updateProfileController
+
+} = require('../controllers/AuthController');
 const {body} = require('express-validator');
 const { requireSignIn, isAdmin } = require('../middlewares/AuthMiddleware');
 
@@ -40,5 +48,9 @@ router.get('/admin-auth',requireSignIn, isAdmin, (req,res) =>
 {
     res.status(200).json({ok : true});
 })
+
+router.put('/profile', 
+body('newPassword','newPassword is too weak').isLength({min:8})
+, requireSignIn ,updateProfileController)
 
 module.exports = router;
