@@ -18,6 +18,7 @@ import Profile from "./pages/User/Profile";
 import Orders from "./pages/User/Orders";
 import Products from "./pages/Admin/Products";
 import UpdateProduct from "./pages/Admin/UpdateProduct";
+import ProductDetail from "./pages/ProductDetail";
 
 function App() {
   return (
@@ -25,6 +26,8 @@ function App() {
       <Router>
         <Routes>
           <Route exact path="/" element = {<HomePage/>}></Route>
+
+          <Route exact path="/product/:slug" element = {<ProductDetail/>}></Route>
           
           <Route path="/dashboard" element = {<PrivateRoute/>}>
             <Route exact path="user" element = {<Dashboard/>}></Route>

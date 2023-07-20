@@ -275,4 +275,39 @@ const getFiltersProductController = async (req,res) =>
     }
 }
 
-module.exports = {createProductController , getAllProductsController , getSingleProductsController , getProductsPhotoController , deleteProductController , updateProductController , getFiltersProductController};
+const getRelatedProductsController = async (req,res) =>
+{
+    try 
+    {
+        const {pid , cid} = req.params; 
+        
+        const products = await ProductModel
+        .find({
+            category : cid,
+            _id : { $ne : pid}
+        })
+        .select('-photo')
+        .limit(3)
+        .populate('category');
+
+        res.status(200).json(
+            {
+                success : true,
+                products
+            }
+        )
+    } 
+    catch (error) 
+    {
+        console.error(error);
+        res.statu(400).json(
+            {
+                success : false,
+                message : 'Error while fetching related Products',
+                error
+            }
+        )    
+    }
+}
+
+module.exports = {createProductController , getAllProductsController , getSingleProductsController , getProductsPhotoController , deleteProductController , updateProductController , getFiltersProductController , getRelatedProductsController};
