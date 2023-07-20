@@ -1,5 +1,6 @@
 const  slugify  = require('slugify');
 const ProductModel = require('../models/ProductModel');
+const CategoryModel = require('../models/CategoryModel');
 const fs = require('fs');
 
 const createProductController = async (req,res) =>
@@ -280,7 +281,7 @@ const getRelatedProductsController = async (req,res) =>
     try 
     {
         const {pid , cid} = req.params; 
-        
+
         const products = await ProductModel
         .find({
             category : cid,
@@ -310,4 +311,46 @@ const getRelatedProductsController = async (req,res) =>
     }
 }
 
-module.exports = {createProductController , getAllProductsController , getSingleProductsController , getProductsPhotoController , deleteProductController , updateProductController , getFiltersProductController , getRelatedProductsController};
+const getCategoryWiseProductsController = async(req,res) =>
+{
+    try
+    {
+        const category = await CategoryModel.findOne({slug : req.params.slug});
+        const products = await ProductModel
+        .find({category})
+        .populate('category');
+
+        res.status(200).json(
+            {
+                success : true,
+                message : "Fetched Category wise Products Successfully",
+                category,
+                products
+            }
+        )
+    }
+    catch(error)
+    {
+        console.error(error);
+        res.status(400).json(
+            {
+                success : false,
+                message : "Error While Fetching Category Wise Products",
+                error
+            }
+        )
+    }
+}
+
+module.exports = 
+{
+    createProductController , 
+    getAllProductsController , 
+    getSingleProductsController , 
+    getProductsPhotoController , 
+    deleteProductController , 
+    updateProductController , 
+    getFiltersProductController , 
+    getRelatedProductsController ,
+    getCategoryWiseProductsController
+};
