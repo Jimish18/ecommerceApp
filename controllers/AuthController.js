@@ -264,7 +264,7 @@ const getAllOrdersController = async(req,res) =>
         .populate("products","-photo")
         .populate("buyer","name")
         .sort({createdAt : '-1'});
-        
+
         res.status(200).json(
             {
                 success : true,
@@ -286,6 +286,43 @@ const getAllOrdersController = async(req,res) =>
     }
 }
 
+const updateOrderStatusController = async(req,res) =>
+{
+    try 
+    {
+        const {orderId} = req.params;
+        const {status} = req.body;
+
+        const orders = await OrderModel.findByIdAndUpdate(orderId , 
+            {
+                status
+            },
+            {
+                new : true
+            })
+
+        res.status(200).json(
+            {
+                success : true,
+                message : "Successfully Updated Order status",
+                orders 
+            }
+        )
+
+    } 
+    catch (error) 
+    {
+        console.error(error);
+        res.status(500).json(
+            {
+                success : false,
+                message : "Error While updating order status",
+                error
+            }
+        )    
+    }
+}
+
 module.exports = 
 {
     registerController , 
@@ -294,6 +331,7 @@ module.exports =
     testController,
     updateProfileController,
     getOrdersController,
-    getAllOrdersController
+    getAllOrdersController,
+    updateOrderStatusController
 };
 

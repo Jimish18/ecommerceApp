@@ -8,7 +8,8 @@ const
     testController,
     updateProfileController,
     getOrdersController,
-    getAllOrdersController
+    getAllOrdersController,
+    updateOrderStatusController
 
 } = require('../controllers/AuthController');
 const {body} = require('express-validator');
@@ -60,5 +61,9 @@ router.get('/orders' , requireSignIn , getOrdersController);
 
 // All Orders
 router.get('/all-orders' , requireSignIn , isAdmin , getAllOrdersController);
+
+
+// Order status update
+router.put('/order-status/:orderId' , requireSignIn , isAdmin , updateOrderStatusController);
 
 module.exports = router;
