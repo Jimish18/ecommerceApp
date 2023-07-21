@@ -1,14 +1,19 @@
-import React from 'react'
+import React, { useState , useEffect } from 'react'
 import Layout from '../components/Layout/Layout'
 import { useCart } from '../context/Cart'
 import { useAuth } from '../context/Auth'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios';
 import  toast  from 'react-hot-toast'
+import DropIn from 'braintree-web-drop-in-react'
 
 const CartPage = () => {
 
     const [cart,setCart] = useCart();
     const [auth,setAuth] = useAuth();
+    const [clientToken , setClientToken] = useState("");
+    const [instance , setInstance] = useState("");
+    const [loading , setLoading] = useState(false);
     const navigate = useNavigate();
 
     const removeCartItem = (pid) =>
@@ -32,6 +37,69 @@ const CartPage = () => {
             style : "currency",
             currency : "USD"
         })
+    }
+
+    // get payment gateway token
+    const getToken = async () =>
+    {
+        try 
+        {
+            const data = await fetch('/api/v1/product/braintree/token',
+            {
+                method : 'GET' 
+            })   
+            
+            const jsonData = await data.json();
+
+            setClientToken(jsonData?.clientToken);
+        } 
+        catch (error) 
+        {
+            console.error(error);    
+        }
+    }
+
+    useEffect(()=>
+    {
+        getToken();        
+    },[auth?.token])
+
+    const handlePayment = async () =>
+    {
+        try 
+        {
+            setLoading(true);
+            const {nonce} = await instance.requestPaymentMethod();  
+
+            const {data} = await axios.post('/api/v1/product/braintree/payment'
+            ,
+            {
+                nonce,
+                cart,
+            } ,
+            {
+                headers : 
+                {
+                    Authorization : auth?.token
+                }
+            }
+            ) ;        
+            
+
+            setLoading(false);
+
+            localStorage.removeItem('cart');
+            setCart([]);
+            navigate('/dashboard/user/orders');
+            toast.success('Payment Done Successfully');
+
+        } 
+        catch (error) 
+        {
+            console.error(error); 
+            setLoading(false);  
+            toast.error("Error while processing payment"); 
+        }
     }
 
   return (
@@ -84,6 +152,83 @@ const CartPage = () => {
                     <p>Total | CheckOut | Payment</p>
                     <hr />
                     <h4>Total Amout : {calcTotalAmount()}</h4>
+
+                    {
+                        auth?.user?.address ? 
+                        (
+                            <div className='my-2'>
+                                <h4>Current Address :</h4>
+                                <h5>{auth?.user?.address}</h5>
+
+                                <button 
+                                    className="btn btn-outline-warning"
+                                    onClick={()=> navigate('/dashboard/user/profile')}
+                                >
+                                    Update Address
+                                </button>
+                            </div>
+                        ) 
+                        :
+                        (
+                            <div className='my-2'>
+                                {
+                                    auth?.token ? 
+                                    (
+                                        <button 
+                                            className="btn btn-outline-warning"
+                                            onClick={()=> navigate('/dashboard/user/profile')}
+                                        >
+                                        Update Address
+                                        </button>
+                                    )
+                                    :
+                                    (
+                                        <button 
+                                            className="btn btn-outline-warning"
+                                            onClick={()=> navigate('/login' , { state : "/cart"})}
+                                        >
+                                        Please Login
+                                        </button>
+                                    )
+                                }
+                            </div>
+                        )
+                    }
+
+                    <div className="my-2">
+                        {
+                           !clientToken || !cart?.length ?
+                           (
+                            ""
+                           )
+                           :
+                           (
+                            <>
+                                <DropIn
+                                    options={{
+                                        authorization : clientToken,
+                                        paypal : 
+                                        {
+                                            flow : 'vault'
+                                        }
+                                    }}
+                                    onInstance={instance => setInstance(instance)}
+                                />
+
+                                <button 
+                                    className='btn btn-primary' 
+                                    onClick={handlePayment}
+                                    disabled = {!clientToken   || !instance || !auth?.user?.address}
+                                >
+                                {
+                                    loading ? "Processing..." : "Make Payment"
+                                }
+                                </button>
+                            </>
+                           ) 
+                        }
+                        
+                    </div>
                 </div>
             </div>
         </div>

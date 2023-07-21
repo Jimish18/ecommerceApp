@@ -1,7 +1,17 @@
 const  slugify  = require('slugify');
 const ProductModel = require('../models/ProductModel');
 const CategoryModel = require('../models/CategoryModel');
+const OrderModel = require('../models/OrderModel');
 const fs = require('fs');
+const braintree = require("braintree");
+
+// Payment Gateway
+var gateway = new braintree.BraintreeGateway({
+  environment: braintree.Environment.Sandbox,
+  merchantId: process.env.BRAINTREE_MERCHANT_ID,
+  publicKey: process.env.BRAINTREE_PUBLIC_KEY,
+  privateKey: process.env.BRAINTREE_PRIVATE_KEY,
+});
 
 const createProductController = async (req,res) =>
 {
@@ -342,6 +352,81 @@ const getCategoryWiseProductsController = async(req,res) =>
     }
 }
 
+// Payment Gateway api
+const braintreeTokenController = async (req,res) =>
+{
+    try 
+    {
+        gateway.clientToken.generate({},function(error , responnse)
+        {
+            if(error)
+            {
+                res.status(500).send(error);
+            }
+            else
+            {
+                res.status(200).send(responnse);
+            }
+        })    
+    } 
+    catch (error) 
+    {
+        console.error(error);    
+    }
+}
+
+// payment api
+const braintreePaymentsController = async (req,res) =>
+{
+    try 
+    {
+        const {cart , nonce} = req.body;
+
+        let total = 0;
+
+        cart.map( (i) => {total += i.price});
+
+        let newTransaction = gateway.transaction.sale(
+            {
+                amount : total,
+                paymentMethodNonce : nonce,
+                options : {
+                    submitForSettlement : true
+                }
+            },
+
+            async function(error,result)
+            {
+                if(result)
+                {
+                    const order = new OrderModel({
+                        products : cart,
+                        payment : result,
+                        buyer : req.user._id
+                    });
+
+                    await order.save();
+
+                    res.json({ok : true});
+                }
+                else
+                {
+                    res.status(500).json(
+                        {
+                            ok : false,
+                            error
+                        }
+                    )
+                }
+            }
+        )
+    } 
+    catch (error) 
+    {
+        console.error(error);    
+    }
+}
+
 module.exports = 
 {
     createProductController , 
@@ -352,5 +437,7 @@ module.exports =
     updateProductController , 
     getFiltersProductController , 
     getRelatedProductsController ,
-    getCategoryWiseProductsController
+    getCategoryWiseProductsController,
+    braintreeTokenController,
+    braintreePaymentsController
 };

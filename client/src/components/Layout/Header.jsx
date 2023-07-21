@@ -7,7 +7,7 @@ import { useCart } from '../../context/Cart'
 const Header = () => {
 
   const [auth,setAuth] = useAuth();
-  const [cart] = useCart();
+  const [cart,setCart] = useCart();
   const navigate = useNavigate();
 
   const handleLogout = () =>
@@ -19,7 +19,9 @@ const Header = () => {
         token : ''
       }
     );
-    localStorage.removeItem("auth")
+    localStorage.removeItem("auth");
+    setCart([]);
+    localStorage.setItem('cart',JSON.stringify([]));
     toast.success("Logged Out Successfully");
 
 
