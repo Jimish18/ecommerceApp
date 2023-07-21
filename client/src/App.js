@@ -22,6 +22,7 @@ import ProductDetail from "./pages/ProductDetail";
 import CategoryPage from "./pages/CategoryPage";
 import EachCategoryPage from "./pages/EachCategoryPage";
 import CartPage from "./pages/CartPage";
+import AdminOrders from "./pages/Admin/AdminOrders";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
             <Route exact path="admin/products" element = {<Products/>}/>
             <Route exact path="admin/product/get-product/:slug" element = {<UpdateProduct/>}/>
             <Route exact path="admin/users" element = {<Users/>}/>
+            <Route exact path="admin/orders" element = {<AdminOrders/>}/>
           </Route>
           
           <Route exact path="/about" element = {<AboutPage/>}></Route>

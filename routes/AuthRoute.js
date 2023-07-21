@@ -6,7 +6,9 @@ const
     loginController , 
     forgotPasswordController , 
     testController,
-    updateProfileController
+    updateProfileController,
+    getOrdersController,
+    getAllOrdersController
 
 } = require('../controllers/AuthController');
 const {body} = require('express-validator');
@@ -51,6 +53,12 @@ router.get('/admin-auth',requireSignIn, isAdmin, (req,res) =>
 
 router.put('/profile', 
 body('newPassword','newPassword is too weak').isLength({min:8})
-, requireSignIn ,updateProfileController)
+, requireSignIn ,updateProfileController);
+
+// Orders
+router.get('/orders' , requireSignIn , getOrdersController);
+
+// All Orders
+router.get('/all-orders' , requireSignIn , isAdmin , getAllOrdersController);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const { hashPassword , comparePassword} = require('../helpers/AuthHelper');
 const User = require('../models/UserModel');
+const OrderModel = require('../models/OrderModel');
 const {validationResult } = require('express-validator');
 const jwt = require('jsonwebtoken');
 
@@ -224,12 +225,75 @@ const updateProfileController = async (req,res) =>
     }
 }
 
+const getOrdersController = async(req,res) =>
+{
+    try 
+    {
+        const orders = await OrderModel
+        .find({buyer: req.user._id})
+        .populate("products","-photo")
+        .populate("buyer","name");
+
+        res.status(200).json(
+            {
+                success : true,
+                message : 'Orders Fetched Successfully',
+                orders
+            }
+        )
+    } 
+    catch (error) 
+    {
+        console.error(error);
+        res.status(500).json(
+            {
+                success : false,
+                message : 'Error while fetching Orders',
+                error
+            }
+        )    
+    }
+}
+
+const getAllOrdersController = async(req,res) =>
+{
+    try 
+    {
+        const orders = await OrderModel
+        .find({})
+        .populate("products","-photo")
+        .populate("buyer","name")
+        .sort({createdAt : '-1'});
+        
+        res.status(200).json(
+            {
+                success : true,
+                message : 'Orders Fetched Successfully',
+                orders
+            }
+        )
+    } 
+    catch (error) 
+    {
+        console.error(error);
+        res.status(500).json(
+            {
+                success : false,
+                message : 'Error while fetching Orders',
+                error
+            }
+        )    
+    }
+}
+
 module.exports = 
 {
     registerController , 
     loginController , 
     forgotPasswordController ,
     testController,
-    updateProfileController
+    updateProfileController,
+    getOrdersController,
+    getAllOrdersController
 };
 
